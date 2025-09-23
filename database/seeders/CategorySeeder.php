@@ -71,7 +71,10 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            Category::create($category);
+            Category::firstOrCreate(
+                ['slug' => $category['slug']], // Use slug as unique identifier
+                $category
+            );
         }
     }
 }

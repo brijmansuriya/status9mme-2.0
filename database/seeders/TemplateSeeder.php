@@ -162,7 +162,10 @@ class TemplateSeeder extends Seeder
         ];
 
         foreach ($templates as $template) {
-            Template::create($template);
+            Template::firstOrCreate(
+                ['slug' => $template['slug']], // Use slug as unique identifier
+                $template
+            );
         }
     }
 }

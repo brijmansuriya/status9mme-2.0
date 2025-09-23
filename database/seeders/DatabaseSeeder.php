@@ -25,10 +25,11 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Seed categories and templates
+        // Seed categories, templates, and admins
         $this->call([
             CategorySeeder::class,
             TemplateSeeder::class,
+            AdminSeeder::class,
         ]);
     }
 }

@@ -40,4 +40,44 @@ class Category extends Model
             }
         });
     }
+
+    /**
+     * Scope for active categories
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope for inactive categories
+     */
+    public function scopeInactive($query)
+    {
+        return $query->where('is_active', false);
+    }
+
+    /**
+     * Scope for ordering by sort order
+     */
+    public function scopeOrderBySort($query, string $direction = 'asc')
+    {
+        return $query->orderBy('sort_order', $direction);
+    }
+
+    /**
+     * Scope for ordering by name
+     */
+    public function scopeOrderByName($query, string $direction = 'asc')
+    {
+        return $query->orderBy('name', $direction);
+    }
+
+    /**
+     * Scope for searching by name
+     */
+    public function scopeSearch($query, string $search)
+    {
+        return $query->where('name', 'like', "%{$search}%");
+    }
 }
