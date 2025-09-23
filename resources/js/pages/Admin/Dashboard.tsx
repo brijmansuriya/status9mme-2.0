@@ -178,7 +178,7 @@ export default function Dashboard({ stats }: DashboardProps) {
                                                     </div>
                                                     <div className="flex items-center">
                                                         <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
-                                                        {template.rating.toFixed(1)}
+                                                        {template.rating ? Number(template.rating).toFixed(1) : '0.0'}
                                                     </div>
                                                 </div>
                                             </div>

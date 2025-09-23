@@ -283,7 +283,7 @@ export default function Templates({ templates, categories }: TemplatesProps) {
                                                 <TableCell>
                                                     <div className="flex items-center">
                                                         <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
-                                                        <span className="font-medium">{template.rating.toFixed(1)}</span>
+                                                        <span className="font-medium">{template.rating ? Number(template.rating).toFixed(1) : '0.0'}</span>
                                                         <span className="text-sm text-gray-500 ml-1">
                                                             ({template.ratings_count})
                                                         </span>

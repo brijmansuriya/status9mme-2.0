@@ -20,7 +20,7 @@ interface Template {
     duration: number;
     downloads_count: number;
     views_count: number;
-    rating: number;
+    rating: number | null;
     ratings_count: number;
     category: {
         name: string;
@@ -213,7 +213,7 @@ export default function Templates({ templates, categories, currentCategory, sear
                                                         </Badge>
                                                         <div className="flex items-center text-sm text-gray-500">
                                                             <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
-                                                            {template.rating.toFixed(1)}
+                                                            {template.rating ? Number(template.rating).toFixed(1) : '0.0'}
                                                         </div>
                                                     </div>
                                                     <h3 className="font-semibold text-lg mb-2 line-clamp-2">{template.name}</h3>
@@ -266,7 +266,7 @@ export default function Templates({ templates, categories, currentCategory, sear
                                                                 </Badge>
                                                                 <div className="flex items-center text-sm text-gray-500">
                                                                     <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
-                                                                    {template.rating.toFixed(1)} ({template.ratings_count})
+                                                                    {template.rating ? Number(template.rating).toFixed(1) : '0.0'} ({template.ratings_count})
                                                                 </div>
                                                             </div>
                                                         </div>

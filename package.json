@@ -2,13 +2,22 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "dev": "vite",
         "build": "vite build",
         "build:ssr": "vite build && vite build --ssr",
-        "dev": "vite",
+        "preview": "vite preview",
+        "test": "php artisan test",
+        "test:watch": "php artisan test --watch",
+        "test:coverage": "php artisan test --coverage",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
-        "types": "tsc --noEmit"
+        "lint:check": "eslint .",
+        "types": "tsc --noEmit",
+        "types:check": "tsc --noEmit --strict",
+        "analyze": "vite build --mode analyze",
+        "clean": "rm -rf node_modules/.vite && rm -rf public/build",
+        "fresh": "npm run clean && npm install && npm run dev"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
