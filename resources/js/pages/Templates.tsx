@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -197,10 +197,12 @@ export default function Templates({ templates, categories, currentCategory, sear
                                                         </Badge>
                                                     )}
                                                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                                        <Button size="sm" className="bg-white text-black hover:bg-gray-100">
-                                                            <Play className="w-4 h-4 mr-2" />
-                                                            Preview
-                                                        </Button>
+                                                        <Link href={route('templates.editor', template.slug)}>
+                                                            <Button size="sm" className="bg-white text-black hover:bg-gray-100">
+                                                                <Play className="w-4 h-4 mr-2" />
+                                                                Customize
+                                                            </Button>
+                                                        </Link>
                                                     </div>
                                                 </div>
                                                 <CardContent className="p-4">
@@ -287,10 +289,12 @@ export default function Templates({ templates, categories, currentCategory, sear
                                                                 </span>
                                                             </div>
                                                             
-                                                            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                                                                <Play className="w-4 h-4 mr-2" />
-                                                                Use Template
-                                                            </Button>
+                                                            <Link href={route('templates.editor', template.slug)}>
+                                                                <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                                                                    <Play className="w-4 h-4 mr-2" />
+                                                                    Customize
+                                                                </Button>
+                                                            </Link>
                                                         </div>
                                                     </div>
                                                 </div>

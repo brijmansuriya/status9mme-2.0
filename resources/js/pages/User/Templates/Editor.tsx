@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause, Download, Upload, Palette, Type, Image, Music, Settings, RotateCcw } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Play, Pause, Download, Upload, Palette, Type, Image, Music, Settings, RotateCcw, Eye, ArrowLeft } from 'lucide-react';
 import { ChromePicker } from 'react-color';
 
 interface Template {
@@ -29,16 +30,18 @@ interface Template {
     };
 }
 
-interface VideoEditorProps {
+interface EditorProps {
     template: Template;
 }
 
-export default function VideoEditor({ template }: VideoEditorProps) {
+export default function Editor({ template }: EditorProps) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [customizations, setCustomizations] = useState<Record<string, any>>({});
     const [showColorPicker, setShowColorPicker] = useState<string | null>(null);
-    const [previewData, setPreviewData] = useState<any>(null);
+    const [isExporting, setIsExporting] = useState(false);
+    const [exportProgress, setExportProgress] = useState(0);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -99,15 +102,99 @@ export default function VideoEditor({ template }: VideoEditorProps) {
         }));
     };
 
+    const handlePreview = async () => {
+        try {
+            const response = await fetch(route('templates.preview', template.slug), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify({
+                    customizations
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.preview_url) {
+                setPreviewUrl(result.preview_url);
+                if (videoRef.current) {
+                    videoRef.current.src = result.preview_url;
+                }
+            }
+        } catch (error) {
+            console.error('Preview error:', error);
+        }
+    };
+
+    const handleExport = async (format: 'mp4' | 'webm' = 'mp4') => {
+        setIsExporting(true);
+        setExportProgress(0);
+        
+        try {
+            const response = await fetch(route('templates.export', template.slug), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify({
+                    customizations,
+                    format,
+                    quality: 'high'
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.job_id) {
+                // Poll for export status
+                const checkStatus = async () => {
+                    try {
+                        const statusResponse = await fetch(route('exports.status', result.job_id));
+                        const status = await statusResponse.json();
+                        
+                        if (status.status === 'completed') {
+                            setExportProgress(100);
+                            // Download the file
+                            const link = document.createElement('a');
+                            link.href = status.download_url;
+                            link.download = `${template.name}_customized.${format}`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            setIsExporting(false);
+                        } else if (status.status === 'processing') {
+                            setExportProgress(status.progress || 50);
+                            // Continue polling
+                            setTimeout(checkStatus, 2000);
+                        } else {
+                            console.error('Export failed:', status);
+                            setIsExporting(false);
+                        }
+                    } catch (error) {
+                        console.error('Status check error:', error);
+                        setIsExporting(false);
+                    }
+                };
+                
+                checkStatus();
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            setIsExporting(false);
+        }
+    };
+
     const renderPreview = () => {
-        // This would integrate with DiffusionStudio/core for actual video rendering
         return (
             <div className="relative bg-black rounded-lg overflow-hidden">
                 <div className="aspect-[9/16] bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-                    {template.preview_video ? (
+                    {previewUrl || template.preview_video ? (
                         <video
                             ref={videoRef}
-                            src={template.preview_video}
+                            src={previewUrl || template.preview_video}
                             className="w-full h-full object-cover"
                             onTimeUpdate={handleTimeUpdate}
                             onEnded={() => setIsPlaying(false)}
@@ -373,125 +460,66 @@ export default function VideoEditor({ template }: VideoEditorProps) {
         );
     };
 
-    const handleExport = async (format: 'mp4' | 'webm' = 'mp4') => {
-        try {
-            const response = await fetch(route('templates.export', template.slug), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-                body: JSON.stringify({
-                    customizations,
-                    format,
-                    quality: 'high'
-                })
-            });
-
-            const result = await response.json();
-            
-            if (result.job_id) {
-                // Poll for export status
-                const checkStatus = async () => {
-                    const statusResponse = await fetch(route('exports.status', result.job_id));
-                    const status = await statusResponse.json();
-                    
-                    if (status.status === 'completed') {
-                        // Download the file
-                        const link = document.createElement('a');
-                        link.href = status.download_url;
-                        link.download = `${template.name}_customized.${format}`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                    } else if (status.status === 'processing') {
-                        // Continue polling
-                        setTimeout(checkStatus, 2000);
-                    } else {
-                        console.error('Export failed:', status);
-                    }
-                };
-                
-                checkStatus();
-            }
-        } catch (error) {
-            console.error('Export error:', error);
-        }
-    };
-
-    const handlePreview = async () => {
-        try {
-            const response = await fetch(route('templates.preview', template.slug), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-                body: JSON.stringify({
-                    customizations
-                })
-            });
-
-            const result = await response.json();
-            
-            if (result.preview_url) {
-                // Update the preview video source
-                if (videoRef.current) {
-                    videoRef.current.src = result.preview_url;
-                }
-            }
-        } catch (error) {
-            console.error('Preview error:', error);
-        }
-    };
-
     return (
         <>
             <Head title={`Edit ${template.name} - Video Editor`} />
             
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
                 {/* Header */}
-                <div className="bg-white border-b sticky top-0 z-10">
+                <div className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-10">
                     <div className="max-w-7xl mx-auto px-4 py-4">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-900">{template.name}</h1>
-                                <p className="text-gray-600">{template.category.name} • {template.duration}s</p>
+                            <div className="flex items-center gap-4">
+                                <Link href={route('templates')}>
+                                    <Button variant="outline" size="sm">
+                                        <ArrowLeft className="w-4 h-4 mr-2" />
+                                        Back to Templates
+                                    </Button>
+                                </Link>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-900">{template.name}</h1>
+                                    <p className="text-gray-600">{template.description}</p>
+                                </div>
                             </div>
                             
                             <div className="flex items-center gap-4">
-                                <Button variant="outline" onClick={() => window.history.back()}>
-                                    <RotateCcw className="w-4 h-4 mr-2" />
-                                    Back
-                                </Button>
-                            <div className="flex gap-2">
-                                <Button onClick={handlePreview} variant="outline">
+                                <Button variant="outline" onClick={handlePreview}>
                                     <Eye className="w-4 h-4 mr-2" />
                                     Update Preview
                                 </Button>
-                                <Button onClick={() => handleExport('mp4')} className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                                    <Download className="w-4 h-4 mr-2" />
-                                    Export MP4
-                                </Button>
-                                <Button onClick={() => handleExport('webm')} variant="outline">
-                                    <Download className="w-4 h-4 mr-2" />
-                                    Export WebM
-                                </Button>
-                            </div>
+                                <div className="flex gap-2">
+                                    <Button 
+                                        onClick={() => handleExport('mp4')} 
+                                        disabled={isExporting}
+                                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                                    >
+                                        <Download className="w-4 h-4 mr-2" />
+                                        {isExporting ? `Exporting... ${exportProgress}%` : 'Export MP4'}
+                                    </Button>
+                                    <Button 
+                                        onClick={() => handleExport('webm')} 
+                                        disabled={isExporting}
+                                        variant="outline"
+                                    >
+                                        <Download className="w-4 h-4 mr-2" />
+                                        Export WebM
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                {/* Content */}
                 <div className="max-w-7xl mx-auto px-4 py-8">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Preview Panel */}
+                        {/* Preview */}
                         <div className="lg:col-span-2">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Preview</CardTitle>
                                     <CardDescription>
-                                        See how your video looks in real-time
+                                        See your changes in real-time
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -537,39 +565,33 @@ export default function VideoEditor({ template }: VideoEditorProps) {
                                 <TabsContent value="settings" className="mt-6">
                                     <Card>
                                         <CardHeader>
-                                            <CardTitle>Video Settings</CardTitle>
+                                            <CardTitle>Export Settings</CardTitle>
                                         </CardHeader>
                                         <CardContent className="space-y-4">
                                             <div>
-                                                <Label htmlFor="duration">Duration (seconds)</Label>
-                                                <Input
-                                                    id="duration"
-                                                    type="number"
-                                                    value={template.duration}
-                                                    disabled
-                                                />
-                                            </div>
-                                            
-                                            <div>
-                                                <Label htmlFor="resolution">Resolution</Label>
-                                                <Input
-                                                    id="resolution"
-                                                    value={template.json_config.resolution}
-                                                    disabled
-                                                />
-                                            </div>
-                                            
-                                            <div>
-                                                <Label htmlFor="quality">Export Quality</Label>
+                                                <Label>Quality</Label>
                                                 <Select defaultValue="high">
                                                     <SelectTrigger>
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="low">Low (480p)</SelectItem>
-                                                        <SelectItem value="medium">Medium (720p)</SelectItem>
-                                                        <SelectItem value="high">High (1080p)</SelectItem>
-                                                        <SelectItem value="ultra">Ultra (4K)</SelectItem>
+                                                        <SelectItem value="low">Low (Fast)</SelectItem>
+                                                        <SelectItem value="medium">Medium (Balanced)</SelectItem>
+                                                        <SelectItem value="high">High (Best)</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            
+                                            <div>
+                                                <Label>Resolution</Label>
+                                                <Select defaultValue="1080x1920">
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="1080x1920">1080x1920 (Mobile)</SelectItem>
+                                                        <SelectItem value="1920x1080">1920x1080 (Desktop)</SelectItem>
+                                                        <SelectItem value="1080x1080">1080x1080 (Square)</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </div>

@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
+// use Spatie\MediaLibrary\HasMedia;
+// use Spatie\MediaLibrary\InteractsWithMedia;
+// use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Asset extends Model implements HasMedia
+class Asset extends Model // implements HasMedia
 {
-    use HasFactory, InteractsWithMedia;
+    use HasFactory; // , InteractsWithMedia;
 
     protected $fillable = [
         'name',
@@ -161,156 +161,156 @@ class Asset extends Model implements HasMedia
         return $query->where('mime_type', 'like', $pattern);
     }
 
-    /**
-     * Register media collections
-     */
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('files')
-            ->acceptsMimeTypes([
-                'image/jpeg',
-                'image/png',
-                'image/gif',
-                'image/webp',
-                'video/mp4',
-                'video/webm',
-                'video/quicktime',
-                'audio/mpeg',
-                'audio/wav',
-                'audio/mp4',
-                'application/json', // For Lottie files
-            ])
-            ->singleFile();
+    // /**
+    //  * Register media collections
+    //  */
+    // public function registerMediaCollections(): void
+    // {
+    //     $this->addMediaCollection('files')
+    //         ->acceptsMimeTypes([
+    //             'image/jpeg',
+    //             'image/png',
+    //             'image/gif',
+    //             'image/webp',
+    //             'video/mp4',
+    //             'video/webm',
+    //             'video/quicktime',
+    //             'audio/mpeg',
+    //             'audio/wav',
+    //             'audio/mp4',
+    //             'application/json', // For Lottie files
+    //         ])
+    //         ->singleFile();
 
-        $this->addMediaCollection('thumbnails')
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
-            ->singleFile();
-    }
+    //     $this->addMediaCollection('thumbnails')
+    //         ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+    //         ->singleFile();
+    // }
 
-    /**
-     * Register media conversions
-     */
-    public function registerMediaConversions(Media $media = null): void
-    {
-        // Image conversions
-        $this->addMediaConversion('thumb')
-            ->width(300)
-            ->height(300)
-            ->sharpen(10)
-            ->performOnCollections('files');
+    // /**
+    //  * Register media conversions
+    //  */
+    // public function registerMediaConversions(Media $media = null): void
+    // {
+    //     // Image conversions
+    //     $this->addMediaConversion('thumb')
+    //         ->width(300)
+    //         ->height(300)
+    //         ->sharpen(10)
+    //         ->performOnCollections('files');
 
-        $this->addMediaConversion('small')
-            ->width(600)
-            ->height(600)
-            ->sharpen(10)
-            ->performOnCollections('files');
+    //     $this->addMediaConversion('small')
+    //         ->width(600)
+    //         ->height(600)
+    //         ->sharpen(10)
+    //         ->performOnCollections('files');
 
-        $this->addMediaConversion('medium')
-            ->width(1200)
-            ->height(1200)
-            ->sharpen(10)
-            ->performOnCollections('files');
+    //     $this->addMediaConversion('medium')
+    //         ->width(1200)
+    //         ->height(1200)
+    //         ->sharpen(10)
+    //         ->performOnCollections('files');
 
-        $this->addMediaConversion('large')
-            ->width(1920)
-            ->height(1920)
-            ->sharpen(10)
-            ->performOnCollections('files');
+    //     $this->addMediaConversion('large')
+    //         ->width(1920)
+    //         ->height(1920)
+    //         ->sharpen(10)
+    //         ->performOnCollections('files');
 
-        // Video thumbnail generation
-        $this->addMediaConversion('video_thumb')
-            ->width(400)
-            ->height(400)
-            ->extractVideoFrameAtSecond(1)
-            ->performOnCollections('files');
-    }
+    //     // Video thumbnail generation
+    //     $this->addMediaConversion('video_thumb')
+    //         ->width(400)
+    //         ->height(400)
+    //         ->extractVideoFrameAtSecond(1)
+    //         ->performOnCollections('files');
+    // }
 
-    /**
-     * Get the main file from media library
-     */
-    public function getMainFile()
-    {
-        return $this->getFirstMedia('files');
-    }
+    // /**
+    //  * Get the main file from media library
+    //  */
+    // public function getMainFile()
+    // {
+    //     return $this->getFirstMedia('files');
+    // }
 
-    /**
-     * Get thumbnail from media library
-     */
-    public function getThumbnail()
-    {
-        return $this->getFirstMedia('thumbnails') ?? $this->getFirstMedia('files');
-    }
+    // /**
+    //  * Get thumbnail from media library
+    //  */
+    // public function getThumbnail()
+    // {
+    //     return $this->getFirstMedia('thumbnails') ?? $this->getFirstMedia('files');
+    // }
 
-    /**
-     * Get file URL with conversion
-     */
-    public function getFileUrl(string $conversion = '')
-    {
-        $media = $this->getMainFile();
+    // /**
+    //  * Get file URL with conversion
+    //  */
+    // public function getFileUrl(string $conversion = '')
+    // {
+    //     $media = $this->getMainFile();
         
-        if (!$media) {
-            return null;
-        }
+    //     if (!$media) {
+    //         return null;
+    //     }
 
-        return $conversion ? $media->getUrl($conversion) : $media->getUrl();
-    }
+    //     return $conversion ? $media->getUrl($conversion) : $media->getUrl();
+    // }
 
-    /**
-     * Get thumbnail URL
-     */
-    public function getThumbnailUrl(string $conversion = 'thumb')
-    {
-        $media = $this->getThumbnail();
+    // /**
+    //  * Get thumbnail URL
+    //  */
+    // public function getThumbnailUrl(string $conversion = 'thumb')
+    // {
+    //     $media = $this->getThumbnail();
         
-        if (!$media) {
-            return null;
-        }
+    //     if (!$media) {
+    //         return null;
+    //     }
 
-        return $conversion ? $media->getUrl($conversion) : $media->getUrl();
-    }
+    //     return $conversion ? $media->getUrl($conversion) : $media->getUrl();
+    // }
 
-    /**
-     * Upload file to media library
-     */
-    public function uploadFile($file, string $collection = 'files')
-    {
-        return $this->addMediaFromRequest($file)
-            ->toMediaCollection($collection);
-    }
+    // /**
+    //  * Upload file to media library
+    //  */
+    // public function uploadFile($file, string $collection = 'files')
+    // {
+    //     return $this->addMediaFromRequest($file)
+    //         ->toMediaCollection($collection);
+    // }
 
-    /**
-     * Upload file from path
-     */
-    public function uploadFileFromPath(string $path, string $collection = 'files')
-    {
-        return $this->addMedia($path)
-            ->toMediaCollection($collection);
-    }
+    // /**
+    //  * Upload file from path
+    //  */
+    // public function uploadFileFromPath(string $path, string $collection = 'files')
+    // {
+    //     return $this->addMedia($path)
+    //         ->toMediaCollection($collection);
+    // }
 
-    /**
-     * Get file size from media library
-     */
-    public function getFileSizeFromMedia(): int
-    {
-        $media = $this->getMainFile();
-        return $media ? $media->size : 0;
-    }
+    // /**
+    //  * Get file size from media library
+    //  */
+    // public function getFileSizeFromMedia(): int
+    // {
+    //     $media = $this->getMainFile();
+    //     return $media ? $media->size : 0;
+    // }
 
-    /**
-     * Get MIME type from media library
-     */
-    public function getMimeTypeFromMedia(): ?string
-    {
-        $media = $this->getMainFile();
-        return $media ? $media->mime_type : null;
-    }
+    // /**
+    //  * Get MIME type from media library
+    //  */
+    // public function getMimeTypeFromMedia(): ?string
+    // {
+    //     $media = $this->getMainFile();
+    //     return $media ? $media->mime_type : null;
+    // }
 
-    /**
-     * Get file name from media library
-     */
-    public function getFileNameFromMedia(): ?string
-    {
-        $media = $this->getMainFile();
-        return $media ? $media->file_name : null;
-    }
+    // /**
+    //  * Get file name from media library
+    //  */
+    // public function getFileNameFromMedia(): ?string
+    // {
+    //     $media = $this->getMainFile();
+    //     return $media ? $media->file_name : null;
+    // }
 }

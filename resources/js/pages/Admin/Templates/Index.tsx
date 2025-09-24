@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
     Table,
     TableBody,
@@ -28,7 +27,6 @@ import {
     Play,
     Pause
 } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface Template {
     id: number;
@@ -42,7 +40,7 @@ interface Template {
     duration: number;
     downloads_count: number;
     views_count: number;
-    rating: number;
+    rating: number | null;
     ratings_count: number;
     created_at: string;
     updated_at: string;
@@ -54,47 +52,20 @@ interface Template {
 }
 
 interface TemplatesProps {
-    templates: Template[];
-    categories: Array<{
-        id: number;
-        name: string;
-        slug: string;
-    }>;
+    templates: {
+        data: Template[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        links: any[];
+    };
 }
 
-export default function Templates({ templates, categories }: TemplatesProps) {
+export default function Index({ templates }: TemplatesProps) {
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
     const [sortBy, setSortBy] = useState('created_at');
-
-    const filteredTemplates = templates.filter(template => {
-        const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            template.description.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesCategory = selectedCategory === 'all' || 
-                              template.category.id.toString() === selectedCategory;
-        const matchesStatus = statusFilter === 'all' || 
-                            (statusFilter === 'active' && template.is_active) ||
-                            (statusFilter === 'inactive' && !template.is_active) ||
-                            (statusFilter === 'premium' && template.is_premium);
-        return matchesSearch && matchesCategory && matchesStatus;
-    });
-
-    const sortedTemplates = [...filteredTemplates].sort((a, b) => {
-        switch (sortBy) {
-            case 'name':
-                return a.name.localeCompare(b.name);
-            case 'downloads':
-                return b.downloads_count - a.downloads_count;
-            case 'views':
-                return b.views_count - a.views_count;
-            case 'rating':
-                return b.rating - a.rating;
-            case 'created_at':
-            default:
-                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        }
-    });
 
     const handleEdit = (template: Template) => {
         router.visit(route('admin.templates.edit', template.id));
@@ -117,54 +88,39 @@ export default function Templates({ templates, categories }: TemplatesProps) {
 
     return (
         <>
-            <Head title="Manage Templates - Admin Panel" />
+            <Head title="Templates - Admin Panel" />
             
             <div className="min-h-screen bg-gray-50">
-                {/* Header */}
-                <div className="bg-white border-b">
-                    <div className="max-w-7xl mx-auto px-4 py-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h1 className="text-3xl font-bold text-gray-900">Templates</h1>
-                                <p className="text-gray-600">Manage your video templates and their settings</p>
-                            </div>
-                            
+                <div className="max-w-7xl mx-auto px-4 py-8">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900">Templates</h1>
+                            <p className="text-gray-600">Manage your video templates</p>
+                        </div>
+                        <Link href={route('admin.templates.create')}>
                             <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
                                 <Plus className="w-4 h-4 mr-2" />
                                 Create Template
                             </Button>
-                        </div>
+                        </Link>
                     </div>
-                </div>
 
-                <div className="max-w-7xl mx-auto px-4 py-8">
                     {/* Filters */}
                     <Card className="mb-6">
                         <CardContent className="p-6">
                             <div className="flex flex-col lg:flex-row gap-4">
-                                <div className="relative flex-1">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                    <Input
-                                        placeholder="Search templates..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-10"
-                                    />
+                                <div className="flex-1">
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                        <Input
+                                            placeholder="Search templates..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            className="pl-10"
+                                        />
+                                    </div>
                                 </div>
-                                
-                                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                                    <SelectTrigger className="w-full lg:w-48">
-                                        <SelectValue placeholder="All Categories" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Categories</SelectItem>
-                                        {categories.map(category => (
-                                            <SelectItem key={category.id} value={category.id.toString()}>
-                                                {category.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
                                 
                                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                                     <SelectTrigger className="w-full lg:w-48">
@@ -185,8 +141,8 @@ export default function Templates({ templates, categories }: TemplatesProps) {
                                     <SelectContent>
                                         <SelectItem value="created_at">Date Created</SelectItem>
                                         <SelectItem value="name">Name</SelectItem>
-                                        <SelectItem value="downloads">Downloads</SelectItem>
-                                        <SelectItem value="views">Views</SelectItem>
+                                        <SelectItem value="downloads_count">Downloads</SelectItem>
+                                        <SelectItem value="views_count">Views</SelectItem>
                                         <SelectItem value="rating">Rating</SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -197,10 +153,14 @@ export default function Templates({ templates, categories }: TemplatesProps) {
                     {/* Templates Table */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Templates ({sortedTemplates.length})</CardTitle>
-                            <CardDescription>
-                                Manage and organize your video templates
-                            </CardDescription>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle>Templates ({templates.total})</CardTitle>
+                                    <CardDescription>
+                                        Manage and organize your video templates
+                                    </CardDescription>
+                                </div>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             <div className="overflow-x-auto">
@@ -210,24 +170,26 @@ export default function Templates({ templates, categories }: TemplatesProps) {
                                             <TableHead>Template</TableHead>
                                             <TableHead>Category</TableHead>
                                             <TableHead>Status</TableHead>
-                                            <TableHead>Stats</TableHead>
+                                            <TableHead>Duration</TableHead>
+                                            <TableHead>Downloads</TableHead>
+                                            <TableHead>Views</TableHead>
                                             <TableHead>Rating</TableHead>
                                             <TableHead>Created</TableHead>
                                             <TableHead className="text-right">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {sortedTemplates.map((template, index) => (
+                                        {templates.data.map((template, index) => (
                                             <motion.tr
                                                 key={template.id}
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ duration: 0.6, delay: index * 0.05 }}
+                                                transition={{ duration: 0.3, delay: index * 0.05 }}
                                                 className="hover:bg-gray-50"
                                             >
                                                 <TableCell>
-                                                    <div className="flex items-center space-x-4">
-                                                        <div className="w-16 h-24 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center">
+                                                    <div className="flex items-center space-x-3">
+                                                        <div className="w-12 h-12 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center">
                                                             {template.thumbnail ? (
                                                                 <img 
                                                                     src={template.thumbnail} 
@@ -239,68 +201,72 @@ export default function Templates({ templates, categories }: TemplatesProps) {
                                                             )}
                                                         </div>
                                                         <div>
-                                                            <h4 className="font-semibold text-gray-900">{template.name}</h4>
-                                                            <p className="text-sm text-gray-600 line-clamp-2">{template.description}</p>
-                                                            <div className="flex items-center mt-1">
-                                                                <span className="text-xs text-gray-500">{template.duration}s</span>
+                                                            <div className="flex items-center gap-2">
+                                                                <h4 className="font-medium text-gray-900">{template.name}</h4>
                                                                 {template.is_premium && (
-                                                                    <Badge className="ml-2 bg-yellow-500 text-xs">
+                                                                    <Badge className="text-xs bg-yellow-500">
                                                                         Premium
                                                                     </Badge>
                                                                 )}
                                                             </div>
+                                                            <p className="text-sm text-gray-500 line-clamp-1">
+                                                                {template.description}
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </TableCell>
-                                                
                                                 <TableCell>
                                                     <Badge 
-                                                        variant="secondary"
+                                                        variant="secondary" 
                                                         style={{ backgroundColor: template.category.color + '20', color: template.category.color }}
                                                     >
                                                         {template.category.name}
                                                     </Badge>
                                                 </TableCell>
-                                                
                                                 <TableCell>
-                                                    <div className="flex items-center space-x-2">
-                                                        <Badge variant={template.is_active ? "default" : "secondary"}>
-                                                            {template.is_active ? 'Active' : 'Inactive'}
-                                                        </Badge>
+                                                    <Badge 
+                                                        variant={template.is_active ? "default" : "secondary"}
+                                                        className={template.is_active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}
+                                                    >
+                                                        {template.is_active ? 'Active' : 'Inactive'}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="text-sm text-gray-600">{template.duration}s</span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center text-sm text-gray-600">
+                                                        <Download className="w-4 h-4 mr-1" />
+                                                        {template.downloads_count}
                                                     </div>
                                                 </TableCell>
-                                                
                                                 <TableCell>
-                                                    <div className="text-sm text-gray-600">
-                                                        <div className="flex items-center">
-                                                            <Download className="w-4 h-4 mr-1" />
-                                                            {template.downloads_count.toLocaleString()}
-                                                        </div>
-                                                        <div className="flex items-center">
-                                                            <Eye className="w-4 h-4 mr-1" />
-                                                            {template.views_count.toLocaleString()}
-                                                        </div>
+                                                    <div className="flex items-center text-sm text-gray-600">
+                                                        <Eye className="w-4 h-4 mr-1" />
+                                                        {template.views_count}
                                                     </div>
                                                 </TableCell>
-                                                
                                                 <TableCell>
-                                                    <div className="flex items-center">
+                                                    <div className="flex items-center text-sm text-gray-600">
                                                         <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
-                                                        <span className="font-medium">{template.rating ? Number(template.rating).toFixed(1) : '0.0'}</span>
-                                                        <span className="text-sm text-gray-500 ml-1">
-                                                            ({template.ratings_count})
-                                                        </span>
+                                                        {template.rating ? Number(template.rating).toFixed(1) : '0.0'}
+                                                        <span className="text-gray-400 ml-1">({template.ratings_count})</span>
                                                     </div>
                                                 </TableCell>
-                                                
                                                 <TableCell>
-                                                    <div className="text-sm text-gray-600">
+                                                    <span className="text-sm text-gray-600">
                                                         {new Date(template.created_at).toLocaleDateString()}
-                                                    </div>
+                                                    </span>
                                                 </TableCell>
-                                                
                                                 <TableCell className="text-right">
                                                     <div className="flex items-center justify-end space-x-2">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => handleView(template)}
+                                                        >
+                                                            <Eye className="w-4 h-4" />
+                                                        </Button>
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
@@ -330,21 +296,25 @@ export default function Templates({ templates, categories }: TemplatesProps) {
                                     </TableBody>
                                 </Table>
                             </div>
-                            
-                            {sortedTemplates.length === 0 && (
-                                <div className="text-center py-12">
-                                    <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                                        <Search className="w-12 h-12 text-gray-400" />
+
+                            {/* Pagination */}
+                            {templates.last_page > 1 && (
+                                <div className="flex items-center justify-between mt-6">
+                                    <div className="text-sm text-gray-700">
+                                        Showing {((templates.current_page - 1) * templates.per_page) + 1} to {Math.min(templates.current_page * templates.per_page, templates.total)} of {templates.total} results
                                     </div>
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No templates found</h3>
-                                    <p className="text-gray-600 mb-4">Try adjusting your search or filter criteria</p>
-                                    <Button onClick={() => {
-                                        setSearchQuery('');
-                                        setSelectedCategory('all');
-                                        setStatusFilter('all');
-                                    }}>
-                                        Clear Filters
-                                    </Button>
+                                    <div className="flex space-x-2">
+                                        {templates.links.map((link, index) => (
+                                            <Button
+                                                key={index}
+                                                variant={link.active ? "default" : "outline"}
+                                                size="sm"
+                                                disabled={!link.url}
+                                                onClick={() => link.url && router.visit(link.url)}
+                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </CardContent>

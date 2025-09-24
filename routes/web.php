@@ -1,56 +1,25 @@
 <?php
 
-use App\Http\Controllers\TemplateController;
-use App\Http\Controllers\VideoEditorController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\Auth\LogoutController as AdminLogoutController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
 use App\Http\Controllers\Admin\AssetController;
-use App\Models\Category;
-use App\Models\Template;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\User\HomeController;
+use App\Http\Controllers\User\TemplatesController;
+use App\Http\Controllers\User\TemplateEditorController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 // Public routes
-Route::get('/', function () {
-    $categories = Category::withCount('templates')->where('is_active', true)->orderBy('sort_order')->get();
-    $featuredTemplates = Template::with('category')
-        ->where('is_active', true)
-        ->orderBy('downloads_count', 'desc')
-        ->limit(8)
-        ->get();
-    $templates = Template::with('category')
-        ->where('is_active', true)
-        ->orderBy('created_at', 'desc')
-        ->get();
-    
-    return Inertia::render('Home', [
-        'categories' => $categories,
-        'featuredTemplates' => $featuredTemplates,
-        'templates' => $templates,
-    ]);
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/templates', [TemplatesController::class, 'index'])->name('templates');
 
-Route::get('/templates', function () {
-    $categories = Category::withCount('templates')->where('is_active', true)->orderBy('sort_order')->get();
-    $templates = Template::with('category')
-        ->where('is_active', true)
-        ->orderBy('created_at', 'desc')
-        ->get();
-    
-    return Inertia::render('Templates', [
-        'categories' => $categories,
-        'templates' => $templates,
-    ]);
-})->name('templates');
-
-Route::get('/templates/{template:slug}', function (Template $template) {
-    $template->load('category');
-    return Inertia::render('VideoEditor', [
-        'template' => $template,
-    ]);
-})->name('template.edit');
+// Template Editor routes for user customization
+Route::get('/templates/{template:slug}/editor', [TemplateEditorController::class, 'show'])->name('templates.editor');
+Route::post('/templates/{template:slug}/preview', [TemplateEditorController::class, 'preview'])->name('templates.preview');
+Route::post('/templates/{template:slug}/export', [TemplateEditorController::class, 'export'])->name('templates.export');
+Route::get('/exports/{jobId}/status', [TemplateEditorController::class, 'exportStatus'])->name('exports.status');
 
 // Admin authentication routes (public)
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -61,26 +30,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     
     // Protected admin routes
     Route::middleware(['auth.admin'])->group(function () {
-        Route::get('/dashboard', function () {
-            $stats = [
-                'totalTemplates' => Template::count(),
-                'totalCategories' => Category::count(),
-                'totalDownloads' => Template::sum('downloads_count'),
-                'totalViews' => Template::sum('views_count'),
-                'recentTemplates' => Template::with('category')
-                    ->orderBy('created_at', 'desc')
-                    ->limit(5)
-                    ->get(),
-                'topCategories' => Category::withCount('templates')
-                    ->orderBy('templates_count', 'desc')
-                    ->limit(5)
-                    ->get(),
-            ];
-            
-            return Inertia::render('Admin/Dashboard', [
-                'stats' => $stats,
-            ]);
-        })->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         
         Route::resource('categories', CategoryController::class);
         Route::resource('templates', AdminTemplateController::class);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -66,14 +66,18 @@ export default function Home({ templates, categories, featuredTemplates }: HomeP
                                 Perfect for WhatsApp, Instagram, and more!
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                                    <Play className="w-5 h-5 mr-2" />
-                                    Start Creating
-                                </Button>
-                                <Button size="lg" variant="outline">
-                                    <Download className="w-5 h-5 mr-2" />
-                                    View Templates
-                                </Button>
+                                <Link href={route('templates')}>
+                                    <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                                        <Play className="w-5 h-5 mr-2" />
+                                        Start Creating
+                                    </Button>
+                                </Link>
+                                <Link href={route('templates')}>
+                                    <Button size="lg" variant="outline">
+                                        <Download className="w-5 h-5 mr-2" />
+                                        View Templates
+                                    </Button>
+                                </Link>
                             </div>
                         </motion.div>
                     </div>
@@ -117,13 +121,15 @@ export default function Home({ templates, categories, featuredTemplates }: HomeP
                                             <Badge variant="secondary" className="mb-4">
                                                 {category.templates_count} templates
                                             </Badge>
-                                            <Button 
-                                                variant="outline" 
-                                                className="w-full group-hover:bg-gray-50"
-                                                style={{ borderColor: category.color, color: category.color }}
-                                            >
-                                                Explore
-                                            </Button>
+                                            <Link href={route('templates')}>
+                                                <Button 
+                                                    variant="outline" 
+                                                    className="w-full group-hover:bg-gray-50"
+                                                    style={{ borderColor: category.color, color: category.color }}
+                                                >
+                                                    Explore
+                                                </Button>
+                                            </Link>
                                         </CardContent>
                                     </Card>
                                 </motion.div>
@@ -174,10 +180,12 @@ export default function Home({ templates, categories, featuredTemplates }: HomeP
                                                 </Badge>
                                             )}
                                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                                <Button size="sm" className="bg-white text-black hover:bg-gray-100">
-                                                    <Play className="w-4 h-4 mr-2" />
-                                                    Preview
-                                                </Button>
+                                                <Link href={route('templates.editor', template.slug)}>
+                                                    <Button size="sm" className="bg-white text-black hover:bg-gray-100">
+                                                        <Play className="w-4 h-4 mr-2" />
+                                                        Customize
+                                                    </Button>
+                                                </Link>
                                             </div>
                                         </div>
                                         <CardContent className="p-4">
@@ -231,9 +239,11 @@ export default function Home({ templates, categories, featuredTemplates }: HomeP
                             <p className="text-xl text-gray-600 mb-8">
                                 Join thousands of creators who are already making amazing status videos
                             </p>
-                            <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                                Get Started Now
-                            </Button>
+                            <Link href={route('templates')}>
+                                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                                    Get Started Now
+                                </Button>
+                            </Link>
                         </motion.div>
                     </div>
                 </section>

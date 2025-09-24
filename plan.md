@@ -29,11 +29,10 @@ AI Prompt IDE (suggest template content, colors, music)
 
 2️⃣ Tech Stack
 Layer	Tech
-Backend	Laravel 10 + Inertia.js + Sanctum
-Frontend	React 18 + Inertia.js + TailwindCSS + shadcn/ui + Reactbits + Framer Motion
+Backend	Laravel 12 + Inertia.js + Sanctum
+Frontend	React 19 + Inertia.js + TailwindCSS + shadcn/ui + Reactbits + Framer Motion
 Video Rendering	DiffusionStudio/core
 Database	MySQL/PostgreSQL
-Storage	Local or AWS S3 for assets
 SEO / Meta	react-helmet-async, AI-generated meta content
 AI Integration	OpenAI API or local LLM for prompt suggestions
 Deployment	Linux VPS / Docker / Nginx
