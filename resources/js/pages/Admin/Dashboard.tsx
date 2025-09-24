@@ -1,17 +1,16 @@
-import React from 'react';
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import AppLayout from '@/layouts/app-layout';
+import { route } from '@/utils/routes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
     BarChart3, 
-    Users, 
     Download, 
     Eye, 
     TrendingUp, 
     Calendar,
-    Star,
     Play,
     Plus,
     Settings
@@ -97,7 +96,11 @@ export default function Dashboard({ stats }: DashboardProps) {
     ];
 
     return (
-        <>
+        <AppLayout 
+            breadcrumbs={[
+                { title: 'Dashboard', href: route('admin.dashboard') }
+            ]}
+        >
             <Head title="Admin Dashboard" />
             
             <div className="min-h-screen bg-gray-50">
@@ -294,6 +297,6 @@ export default function Dashboard({ stats }: DashboardProps) {
                     </Card>
                 </div>
             </div>
-        </>
+        </AppLayout>
     );
 }

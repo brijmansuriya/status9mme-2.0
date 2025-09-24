@@ -1,5 +1,6 @@
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
+import { route } from '@/utils/routes';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,7 +68,7 @@ export default function AdminCategoriesShow({ category }: Props) {
               </p>
             </div>
           </div>
-          <Link href={route('admin.categories.edit', category.id)}>
+          <Link href={route('admin.categories.edit', { id: category.id })}>
             <Button>
               <Edit className="mr-2 h-4 w-4" />
               Edit Category
@@ -183,7 +184,7 @@ export default function AdminCategoriesShow({ category }: Props) {
                         {new Date(template.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
-                        <Link href={route('admin.templates.show', template.id)}>
+                        <Link href={route('admin.templates.show', { id: template.id })}>
                           <Button variant="outline" size="sm">
                             View
                           </Button>

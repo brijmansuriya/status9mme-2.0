@@ -1,5 +1,6 @@
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
+import { route } from '@/utils/routes';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -68,7 +69,7 @@ export default function Show({ template }: ShowProps) {
                                 <h1 className="text-3xl font-bold text-gray-900">{template.name}</h1>
                                 <p className="text-gray-600">{template.description}</p>
                             </div>
-                            <Link href={route('admin.templates.edit', template.id)}>
+                            <Link href={route('admin.templates.edit', { id: template.id })}>
                                 <Button>
                                     <Edit className="w-4 h-4 mr-2" />
                                     Edit Template
@@ -298,7 +299,7 @@ export default function Show({ template }: ShowProps) {
                                     <CardTitle>Actions</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-2">
-                                    <Link href={route('admin.templates.edit', template.id)} className="w-full">
+                                    <Link href={route('admin.templates.edit', { id: template.id })} className="w-full">
                                         <Button variant="outline" className="w-full justify-start">
                                             <Edit className="w-4 h-4 mr-2" />
                                             Edit Template

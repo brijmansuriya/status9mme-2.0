@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
+import { route } from '@/utils/routes';
+import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -69,7 +71,7 @@ interface Props {
 
 export default function AdminCategoriesIndex({ categories, filters }: Props) {
   const [search, setSearch] = useState(filters.search || '');
-  const [activeFilter, setActiveFilter] = useState(filters.is_active || '');
+  const [activeFilter, setActiveFilter] = useState(filters.is_active?.toString() || '');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [deleteCategory, setDeleteCategory] = useState<Category | null>(null);
 
@@ -90,22 +92,27 @@ export default function AdminCategoriesIndex({ categories, filters }: Props) {
 
   const confirmDelete = () => {
     if (deleteCategory) {
-      router.delete(route('admin.categories.destroy', deleteCategory.id), {
+      router.delete(route('admin.categories.destroy', { id: deleteCategory.id }), {
         onSuccess: () => setDeleteCategory(null),
       });
     }
   };
 
   const handleEdit = (category: Category) => {
-    router.visit(route('admin.categories.edit', category.id));
+    router.visit(route('admin.categories.edit', { id: category.id }));
   };
 
   const handleView = (category: Category) => {
-    router.visit(route('admin.categories.show', category.id));
+    router.visit(route('admin.categories.show', { id: category.id }));
   };
 
   return (
-    <>
+    <AppLayout 
+      breadcrumbs={[
+        { title: 'Dashboard', href: route('admin.dashboard') },
+        { title: 'Categories', href: route('admin.categories') }
+      ]}
+    >
       <Head title="Categories Management" />
       
       <div className="space-y-6">
@@ -383,7 +390,7 @@ export default function AdminCategoriesIndex({ categories, filters }: Props) {
             <AlertDialogTitle>Delete Category</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete "{deleteCategory?.name}"? This action cannot be undone.
-              {deleteCategory?.templates_count > 0 && (
+              {deleteCategory?.templates_count && deleteCategory.templates_count > 0 && (
                 <span className="block mt-2 text-destructive">
                   This category has {deleteCategory.templates_count} templates. You cannot delete it.
                 </span>
@@ -395,13 +402,13 @@ export default function AdminCategoriesIndex({ categories, filters }: Props) {
             <AlertDialogAction 
               onClick={confirmDelete} 
               className="bg-destructive text-destructive-foreground"
-              disabled={deleteCategory?.templates_count > 0}
+              disabled={deleteCategory?.templates_count ? deleteCategory.templates_count > 0 : false}
             >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </AppLayout>
   );
 }

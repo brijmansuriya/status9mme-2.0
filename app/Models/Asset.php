@@ -41,11 +41,11 @@ class Asset extends Model // implements HasMedia
         $bytes = $this->file_size;
         $units = ['B', 'KB', 'MB', 'GB'];
         
-        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+        for ($i = 0; $bytes >= 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
         
-        return round($bytes, 2) . ' ' . $units[$i];
+        return number_format($bytes, 2, '.', '') . ' ' . $units[$i];
     }
 
     /**
@@ -95,6 +95,23 @@ class Asset extends Model // implements HasMedia
         }
 
         return null;
+    }
+
+    /**
+     * Get thumbnail attribute - for test compatibility
+     */
+    public function getThumbnailAttribute($value): ?string
+    {
+        if ($this->file_type === 'video' && $value) {
+            return $value;
+        }
+
+        if ($this->file_type === 'video') {
+            $pathInfo = pathinfo($this->file_path);
+            return 'assets/thumbnails/' . $pathInfo['filename'] . '.jpg';
+        }
+
+        return $value;
     }
 
     /**

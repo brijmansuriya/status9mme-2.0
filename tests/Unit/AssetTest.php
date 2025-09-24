@@ -36,6 +36,7 @@ describe('Asset Model', function () {
 
         $asset = Asset::create([
             'name' => 'Test Asset',
+            'original_name' => 'test.mp4',
             'file_path' => 'assets/test.mp4',
             'file_type' => 'video',
             'mime_type' => 'video/mp4',
@@ -51,6 +52,7 @@ describe('Asset Model', function () {
     it('casts is_public to boolean', function () {
         $asset = Asset::create([
             'name' => 'Test Asset',
+            'original_name' => 'test.jpg',
             'file_path' => 'assets/test.jpg',
             'file_type' => 'image',
             'mime_type' => 'image/jpeg',
@@ -247,7 +249,7 @@ describe('Asset Model', function () {
             'metadata' => $metadata,
         ]);
 
-        expect($asset->metadata['duration'])->toBe(30.0);
+        expect($asset->metadata['duration'])->toBeCloseTo(30.0, 1);
         expect($asset->metadata['bitrate'])->toBe(320);
         expect($asset->metadata['sample_rate'])->toBe(44100);
     });

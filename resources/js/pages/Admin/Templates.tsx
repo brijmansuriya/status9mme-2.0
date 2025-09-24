@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
+import { route } from '@/utils/routes';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -97,17 +98,17 @@ export default function Templates({ templates, categories }: TemplatesProps) {
     });
 
     const handleEdit = (template: Template) => {
-        router.visit(route('admin.templates.edit', template.id));
+        router.visit(route('admin.templates.edit', { id: template.id }));
     };
 
     const handleDelete = (template: Template) => {
         if (confirm('Are you sure you want to delete this template?')) {
-            router.delete(route('admin.templates.destroy', template.id));
+            router.delete(route('admin.templates.destroy', { id: template.id }));
         }
     };
 
     const handleView = (template: Template) => {
-        router.visit(route('admin.templates.show', template.id));
+        router.visit(route('admin.templates.show', { id: template.id }));
     };
 
     const handleToggleStatus = (template: Template) => {

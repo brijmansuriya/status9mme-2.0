@@ -1,10 +1,10 @@
-import React from 'react';
 import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Play, Heart, Download, Star } from 'lucide-react';
+import { route } from '@/utils/routes';
 
 interface Template {
     id: number;
@@ -42,7 +42,7 @@ interface HomeProps {
     featuredTemplates: Template[];
 }
 
-export default function Home({ templates, categories, featuredTemplates }: HomeProps) {
+export default function Home({ categories, featuredTemplates }: HomeProps) {
     return (
         <>
             <Head title="Video Status Maker - Create Amazing Status Videos" />
@@ -180,7 +180,7 @@ export default function Home({ templates, categories, featuredTemplates }: HomeP
                                                 </Badge>
                                             )}
                                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                                <Link href={route('templates.editor', template.slug)}>
+                                                <Link href={route('templates.editor', { slug: template.slug })}>
                                                     <Button size="sm" className="bg-white text-black hover:bg-gray-100">
                                                         <Play className="w-4 h-4 mr-2" />
                                                         Customize

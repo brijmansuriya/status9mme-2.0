@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
-import { motion } from 'framer-motion';
+import { route } from '@/utils/routes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,10 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Save, Eye, Upload, X, Plus, Trash2 } from 'lucide-react';
+import { Save, Plus, Trash2 } from 'lucide-react';
 
 interface Template {
     id: number;
@@ -50,10 +47,9 @@ export default function Edit({ template, categories }: EditProps) {
         resolution: '1080x1920',
         layers: []
     });
-    const [previewMode, setPreviewMode] = useState(false);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
-        category_id: template.category_id,
+    const { data, setData, post, processing, errors } = useForm({
+        category_id: template.category.id,
         name: template.name,
         description: template.description,
         json_config: jsonConfig,
@@ -72,7 +68,7 @@ export default function Edit({ template, categories }: EditProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.templates.update', template.id), {
+        post(route('admin.templates.update', { id: template.id }), {
             forceFormData: true,
             onSuccess: () => {
                 // Handle success
@@ -95,14 +91,14 @@ export default function Edit({ template, categories }: EditProps) {
             })
         };
 
-        setJsonConfig(prev => ({
+        setJsonConfig((prev: any) => ({
             ...prev,
             layers: [...(prev.layers || []), newLayer]
         }));
     };
 
     const updateLayer = (index: number, field: string, value: any) => {
-        setJsonConfig(prev => ({
+        setJsonConfig((prev: any) => ({
             ...prev,
             layers: prev.layers.map((layer: any, i: number) => 
                 i === index ? { ...layer, [field]: value } : layer
@@ -111,7 +107,7 @@ export default function Edit({ template, categories }: EditProps) {
     };
 
     const removeLayer = (index: number) => {
-        setJsonConfig(prev => ({
+        setJsonConfig((prev: any) => ({
             ...prev,
             layers: prev.layers.filter((_: any, i: number) => i !== index)
         }));

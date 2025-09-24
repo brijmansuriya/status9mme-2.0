@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
+import { route } from '@/utils/routes';
+import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -78,7 +80,7 @@ interface Props {
   };
 }
 
-export default function AdminTemplatesIndex({ 
+export default function AdminTemplatesIndex({
   templates, 
   categories, 
   filters, 
@@ -86,8 +88,8 @@ export default function AdminTemplatesIndex({
 }: Props) {
   const [search, setSearch] = useState(filters.search || '');
   const [selectedCategory, setSelectedCategory] = useState(filters.category_id || '');
-  const [premiumFilter, setPremiumFilter] = useState(filters.is_premium || '');
-  const [activeFilter, setActiveFilter] = useState(filters.is_active || '');
+  const [premiumFilter, setPremiumFilter] = useState(filters.is_premium?.toString() || '');
+  const [activeFilter, setActiveFilter] = useState(filters.is_active?.toString() || '');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [deleteTemplate, setDeleteTemplate] = useState<Template | null>(null);
 
@@ -110,22 +112,27 @@ export default function AdminTemplatesIndex({
 
   const confirmDelete = () => {
     if (deleteTemplate) {
-      router.delete(route('admin.templates.destroy', deleteTemplate.id), {
+      router.delete(route('admin.templates.destroy', { id: deleteTemplate.id }), {
         onSuccess: () => setDeleteTemplate(null),
       });
     }
   };
 
   const handleEdit = (template: Template) => {
-    router.visit(route('admin.templates.edit', template.id));
+    router.visit(route('admin.templates.edit', { id: template.id }));
   };
 
   const handleView = (template: Template) => {
-    router.visit(route('admin.templates.show', template.id));
+    router.visit(route('admin.templates.show', { id: template.id }));
   };
 
   return (
-    <>
+    <AppLayout 
+      breadcrumbs={[
+        { title: 'Dashboard', href: route('admin.dashboard') },
+        { title: 'Templates', href: route('admin.templates') }
+      ]}
+    >
       <Head title="Templates Management" />
       
       <div className="space-y-6">
@@ -367,7 +374,8 @@ export default function AdminTemplatesIndex({
                             {template.category.name}
                           </Badge>
                           {template.is_premium && (
-                            <Badge variant="default">Premium</Badge                          )}
+                            <Badge variant="default">Premium</Badge>
+                          )}
                           <Badge 
                             variant={template.is_active ? 'default' : 'secondary'}
                           >
@@ -419,6 +427,6 @@ export default function AdminTemplatesIndex({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </AppLayout>
   );
 }

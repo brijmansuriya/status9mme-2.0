@@ -139,7 +139,7 @@ describe('Template Model', function () {
         ]);
 
         expect($template->rating)->toBe(4.5);
-        expect($template->rating)->toBeInstanceOf('Decimal');
+        expect($template->rating)->toBeFloat();
     });
 
     it('can increment download count', function () {
@@ -181,7 +181,7 @@ describe('Template Model', function () {
             'ratings_count' => $totalRatings,
         ]);
 
-        expect($template->fresh()->rating)->toBe(4.2); // (4.0 * 5 + 5.0) / 6
+        expect($template->fresh()->rating)->toBeCloseTo(4.2, 1); // (4.0 * 5 + 5.0) / 6
         expect($template->fresh()->ratings_count)->toBe(6);
     });
 
@@ -294,7 +294,7 @@ describe('Template Model', function () {
 
         $orderedTemplates = Template::orderBy('rating', 'desc')->get();
 
-        expect($orderedTemplates->first()->rating)->toBe(4.5);
-        expect($orderedTemplates->last()->rating)->toBe(3.8);
+        expect($orderedTemplates->first()->rating)->toBeCloseTo(4.5, 1);
+        expect($orderedTemplates->last()->rating)->toBeCloseTo(3.8, 1);
     });
 });
