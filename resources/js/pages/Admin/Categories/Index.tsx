@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { route } from '@/utils/routes';
-import AppLayout from '@/layouts/app-layout';
+import AdminLayout from '@/layouts/admin-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -107,7 +107,9 @@ export default function AdminCategoriesIndex({ categories, filters }: Props) {
   };
 
   return (
-    <AppLayout 
+    <AdminLayout 
+      title="Categories"
+      description="Manage your video template categories. Create, edit, and organize categories for better content organization."
       breadcrumbs={[
         { title: 'Dashboard', href: route('admin.dashboard') },
         { title: 'Categories', href: route('admin.categories') }
@@ -409,6 +411,6 @@ export default function AdminCategoriesIndex({ categories, filters }: Props) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AppLayout>
+    </AdminLayout>
   );
 }

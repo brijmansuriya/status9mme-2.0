@@ -15,7 +15,7 @@ import { Link } from '@inertiajs/react';
 import { 
     LayoutGrid, 
     FolderTree, 
-    FileTemplate, 
+    FileText, 
     Image, 
     Settings,
     Users,
@@ -39,7 +39,7 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Templates',
         href: route('admin.templates'),
-        icon: FileTemplate,
+        icon: FileText,
     },
     {
         title: 'Assets',

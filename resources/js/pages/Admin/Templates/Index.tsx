@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { route } from '@/utils/routes';
-import AppLayout from '@/layouts/app-layout';
+import AdminLayout from '@/layouts/admin-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -127,7 +127,9 @@ export default function AdminTemplatesIndex({
   };
 
   return (
-    <AppLayout 
+    <AdminLayout 
+      title="Templates"
+      description="Manage your video templates. Create, edit, and organize templates for your video status maker platform."
       breadcrumbs={[
         { title: 'Dashboard', href: route('admin.dashboard') },
         { title: 'Templates', href: route('admin.templates') }
@@ -427,6 +429,6 @@ export default function AdminTemplatesIndex({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AppLayout>
+    </AdminLayout>
   );
 }

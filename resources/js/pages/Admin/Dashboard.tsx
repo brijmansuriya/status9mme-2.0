@@ -1,6 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import AppLayout from '@/layouts/app-layout';
+import AdminLayout from '@/layouts/admin-layout';
 import { route } from '@/utils/routes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -96,7 +96,9 @@ export default function Dashboard({ stats }: DashboardProps) {
     ];
 
     return (
-        <AppLayout 
+        <AdminLayout 
+            title="Dashboard"
+            description="Welcome to your admin dashboard. Manage templates, categories, and monitor your video platform."
             breadcrumbs={[
                 { title: 'Dashboard', href: route('admin.dashboard') }
             ]}
@@ -297,6 +299,6 @@ export default function Dashboard({ stats }: DashboardProps) {
                     </Card>
                 </div>
             </div>
-        </AppLayout>
+        </AdminLayout>
     );
 }
