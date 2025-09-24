@@ -114,3 +114,106 @@ test('template validation works', function () {
         ->post(route('admin.templates.store'), $invalidData)
         ->assertSessionHasErrors(['name', 'category_id', 'json_config']);
 });
+
+test('admin can view create template form', function () {
+    $this->actingAs($this->admin, 'admin')
+        ->get(route('admin.templates.create'))
+        ->assertStatus(200)
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/Templates/Create')
+            ->has('categories')
+        );
+});
+
+test('admin can view template details', function () {
+    $template = Template::factory()->create();
+
+    $this->actingAs($this->admin, 'admin')
+        ->get(route('admin.templates.show', $template))
+        ->assertStatus(200)
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/Templates/Show')
+            ->has('template')
+            ->where('template.name', $template->name)
+        );
+});
+
+test('admin can view edit template form', function () {
+    $template = Template::factory()->create();
+
+    $this->actingAs($this->admin, 'admin')
+        ->get(route('admin.templates.edit', $template))
+        ->assertStatus(200)
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/Templates/Edit')
+            ->has('template')
+            ->has('categories')
+            ->where('template.name', $template->name)
+        );
+});
+
+test('template search functionality works', function () {
+    Template::factory()->create(['name' => 'Design Template']);
+    Template::factory()->create(['name' => 'Business Template']);
+    Template::factory()->create(['name' => 'Creative Template']);
+
+    $this->actingAs($this->admin, 'admin')
+        ->get(route('admin.templates.index', ['search' => 'Design']))
+        ->assertStatus(200)
+        ->assertInertia(fn ($page) => $page
+            ->has('templates.data', 1)
+            ->where('templates.data.0.name', 'Design Template')
+        );
+});
+
+test('template filter by category works', function () {
+    $category1 = Category::factory()->create(['name' => 'Category 1']);
+    $category2 = Category::factory()->create(['name' => 'Category 2']);
+    
+    Template::factory()->create(['category_id' => $category1->id]);
+    Template::factory()->create(['category_id' => $category2->id]);
+
+    $this->actingAs($this->admin, 'admin')
+        ->get(route('admin.templates.index', ['category_id' => $category1->id]))
+        ->assertStatus(200)
+        ->assertInertia(fn ($page) => $page
+            ->has('templates.data', 1)
+        );
+});
+
+test('template filter by premium status works', function () {
+    Template::factory()->create(['is_premium' => true]);
+    Template::factory()->create(['is_premium' => false]);
+
+    $this->actingAs($this->admin, 'admin')
+        ->get(route('admin.templates.index', ['is_premium' => '1']))
+        ->assertStatus(200)
+        ->assertInertia(fn ($page) => $page
+            ->has('templates.data', 1)
+        );
+});
+
+test('template filter by active status works', function () {
+    Template::factory()->create(['is_active' => true]);
+    Template::factory()->create(['is_active' => false]);
+
+    $this->actingAs($this->admin, 'admin')
+        ->get(route('admin.templates.index', ['is_active' => '1']))
+        ->assertStatus(200)
+        ->assertInertia(fn ($page) => $page
+            ->has('templates.data', 1)
+        );
+});
+
+test('guest cannot access admin templates', function () {
+    $this->get(route('admin.templates.index'))
+        ->assertRedirect(route('admin.login'));
+});
+
+test('regular user cannot access admin templates', function () {
+    $user = \App\Models\User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('admin.templates.index'))
+        ->assertRedirect(route('admin.login'));
+});

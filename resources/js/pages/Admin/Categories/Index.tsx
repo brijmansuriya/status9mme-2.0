@@ -40,63 +40,43 @@ import {
   Filter
 } from 'lucide-react';
 
-interface Template {
+interface Category {
   id: number;
   name: string;
   description: string;
-  category: {
-    id: number;
-    name: string;
-  };
-  is_premium: boolean;
+  color: string;
+  icon: string;
   is_active: boolean;
-  downloads_count: number;
-  views_count: number;
+  sort_order: number;
+  templates_count: number;
   created_at: string;
   updated_at: string;
 }
 
-interface Category {
-  id: number;
-  name: string;
-}
-
 interface Props {
-  templates: Template[];
-  categories: Category[];
-  filters: {
-    search?: string;
-    category_id?: number;
-    is_premium?: boolean;
-    is_active?: boolean;
-  };
-  pagination: {
+  categories: {
+    data: Category[];
     current_page: number;
     last_page: number;
     per_page: number;
     total: number;
   };
+  filters: {
+    search?: string;
+    is_active?: boolean;
+  };
 }
 
-export default function AdminTemplatesIndex({ 
-  templates, 
-  categories, 
-  filters, 
-  pagination 
-}: Props) {
+export default function AdminCategoriesIndex({ categories, filters }: Props) {
   const [search, setSearch] = useState(filters.search || '');
-  const [selectedCategory, setSelectedCategory] = useState(filters.category_id || '');
-  const [premiumFilter, setPremiumFilter] = useState(filters.is_premium || '');
   const [activeFilter, setActiveFilter] = useState(filters.is_active || '');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-  const [deleteTemplate, setDeleteTemplate] = useState<Template | null>(null);
+  const [deleteCategory, setDeleteCategory] = useState<Category | null>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    router.get(route('admin.templates.index'), {
+    router.get(route('admin.categories.index'), {
       search,
-      category_id: selectedCategory || undefined,
-      is_premium: premiumFilter || undefined,
       is_active: activeFilter || undefined,
     }, {
       preserveState: true,
@@ -104,43 +84,43 @@ export default function AdminTemplatesIndex({
     });
   };
 
-  const handleDelete = (template: Template) => {
-    setDeleteTemplate(template);
+  const handleDelete = (category: Category) => {
+    setDeleteCategory(category);
   };
 
   const confirmDelete = () => {
-    if (deleteTemplate) {
-      router.delete(route('admin.templates.destroy', deleteTemplate.id), {
-        onSuccess: () => setDeleteTemplate(null),
+    if (deleteCategory) {
+      router.delete(route('admin.categories.destroy', deleteCategory.id), {
+        onSuccess: () => setDeleteCategory(null),
       });
     }
   };
 
-  const handleEdit = (template: Template) => {
-    router.visit(route('admin.templates.edit', template.id));
+  const handleEdit = (category: Category) => {
+    router.visit(route('admin.categories.edit', category.id));
   };
 
-  const handleView = (template: Template) => {
-    router.visit(route('admin.templates.show', template.id));
+  const handleView = (category: Category) => {
+    router.visit(route('admin.categories.show', category.id));
   };
 
   return (
     <>
-      <Head title="Templates Management" />
+      <Head title="Categories Management" />
       
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Templates</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Categories</h1>
             <p className="text-muted-foreground">
-              Manage your video templates and their settings
+              Manage template categories and their settings
             </p>
           </div>
-          <Link href={route('admin.templates.create')}>
+          <Link href={route('admin.categories.create')}>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Create Template
+              Create Category
             </Button>
           </Link>
         </div>
@@ -155,47 +135,18 @@ export default function AdminTemplatesIndex({
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSearch} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Search</label>
                   <div className="relative">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search templates..."
+                      placeholder="Search categories..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       className="pl-10"
                     />
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Category</label>
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full px-3 py-2 border border-input bg-background rounded-md"
-                  >
-                    <option value="">All Categories</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Premium</label>
-                  <select
-                    value={premiumFilter}
-                    onChange={(e) => setPremiumFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-input bg-background rounded-md"
-                  >
-                    <option value="">All</option>
-                    <option value="1">Premium Only</option>
-                    <option value="0">Free Only</option>
-                  </select>
                 </div>
 
                 <div className="space-y-2">
@@ -210,27 +161,32 @@ export default function AdminTemplatesIndex({
                     <option value="0">Inactive</option>
                   </select>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">View Mode</label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant={viewMode === 'list' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setViewMode('list')}
+                    >
+                      <List className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={viewMode === 'grid' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setViewMode('grid')}
+                    >
+                      <Grid3X3 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-between items-center">
                 <Button type="submit">Apply Filters</Button>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">View:</span>
-                  <Button
-                    variant={viewMode === 'list' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setViewMode('list')}
-                  >
-                    <List className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === 'grid' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setViewMode('grid')}
-                  >
-                    <Grid3X3 className="h-4 w-4" />
-                  </Button>
-                </div>
               </div>
             </form>
           </CardContent>
@@ -241,7 +197,7 @@ export default function AdminTemplatesIndex({
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>
-                Templates ({pagination.total})
+                Categories ({categories.total})
               </CardTitle>
             </div>
           </CardHeader>
@@ -251,46 +207,59 @@ export default function AdminTemplatesIndex({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Category</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Color</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Downloads</TableHead>
-                    <TableHead>Views</TableHead>
+                    <TableHead>Templates</TableHead>
+                    <TableHead>Sort Order</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead className="w-[50px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {templates.map((template) => (
-                    <TableRow key={template.id}>
+                  {categories.data.map((category) => (
+                    <TableRow key={category.id}>
                       <TableCell className="font-medium">
-                        <div>
-                          <div className="font-semibold">{template.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {template.description}
+                        <div className="flex items-center gap-2">
+                          {category.icon && (
+                            <span className="text-lg">{category.icon}</span>
+                          )}
+                          <div>
+                            <div className="font-semibold">{category.name}</div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary">
-                          {template.category.name}
+                        <div className="text-sm text-muted-foreground max-w-xs truncate">
+                          {category.description || 'No description'}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {category.color && (
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-4 h-4 rounded-full border"
+                              style={{ backgroundColor: category.color }}
+                            />
+                            <span className="text-xs font-mono">{category.color}</span>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={category.is_active ? 'default' : 'secondary'}
+                        >
+                          {category.is_active ? 'Active' : 'Inactive'}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
-                          {template.is_premium && (
-                            <Badge variant="default">Premium</Badge>
-                          )}
-                          <Badge 
-                            variant={template.is_active ? 'default' : 'secondary'}
-                          >
-                            {template.is_active ? 'Active' : 'Inactive'}
-                          </Badge>
-                        </div>
+                        <Badge variant="outline">
+                          {category.templates_count} templates
+                        </Badge>
                       </TableCell>
-                      <TableCell>{template.downloads_count}</TableCell>
-                      <TableCell>{template.views_count}</TableCell>
+                      <TableCell>{category.sort_order}</TableCell>
                       <TableCell>
-                        {new Date(template.created_at).toLocaleDateString()}
+                        {new Date(category.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -300,16 +269,16 @@ export default function AdminTemplatesIndex({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleView(template)}>
+                            <DropdownMenuItem onClick={() => handleView(category)}>
                               <Eye className="mr-2 h-4 w-4" />
                               View
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEdit(template)}>
+                            <DropdownMenuItem onClick={() => handleEdit(category)}>
                               <Edit className="mr-2 h-4 w-4" />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              onClick={() => handleDelete(template)}
+                              onClick={() => handleDelete(category)}
                               className="text-destructive"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
@@ -324,15 +293,20 @@ export default function AdminTemplatesIndex({
               </Table>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {templates.map((template) => (
-                  <Card key={template.id}>
+                {categories.data.map((category) => (
+                  <Card key={category.id}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="text-lg">{template.name}</CardTitle>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {template.description}
-                          </p>
+                        <div className="flex items-center gap-2">
+                          {category.icon && (
+                            <span className="text-2xl">{category.icon}</span>
+                          )}
+                          <div>
+                            <CardTitle className="text-lg">{category.name}</CardTitle>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {category.description || 'No description'}
+                            </p>
+                          </div>
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -341,16 +315,16 @@ export default function AdminTemplatesIndex({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleView(template)}>
+                            <DropdownMenuItem onClick={() => handleView(category)}>
                               <Eye className="mr-2 h-4 w-4" />
                               View
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEdit(template)}>
+                            <DropdownMenuItem onClick={() => handleEdit(category)}>
                               <Edit className="mr-2 h-4 w-4" />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              onClick={() => handleDelete(template)}
+                              onClick={() => handleDelete(category)}
                               className="text-destructive"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
@@ -363,23 +337,23 @@ export default function AdminTemplatesIndex({
                     <CardContent>
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <Badge variant="secondary">
-                            {template.category.name}
-                          </Badge>
-                          {template.is_premium && (
-                            <Badge variant="default">Premium</Badge                          )}
+                          {category.color && (
+                            <div 
+                              className="w-4 h-4 rounded-full border"
+                              style={{ backgroundColor: category.color }}
+                            />
+                          )}
                           <Badge 
-                            variant={template.is_active ? 'default' : 'secondary'}
+                            variant={category.is_active ? 'default' : 'secondary'}
                           >
-                            {template.is_active ? 'Active' : 'Inactive'}
+                            {category.is_active ? 'Active' : 'Inactive'}
                           </Badge>
-                        </div>
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>{template.downloads_count} downloads</span>
-                          <span>{template.views_count} views</span>
+                          <Badge variant="outline">
+                            {category.templates_count} templates
+                          </Badge>
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          Created {new Date(template.created_at).toLocaleDateString()}
+                          Sort order: {category.sort_order} • Created {new Date(category.created_at).toLocaleDateString()}
                         </div>
                       </div>
                     </CardContent>
@@ -388,13 +362,13 @@ export default function AdminTemplatesIndex({
               </div>
             )}
 
-            {templates.length === 0 && (
+            {categories.data.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-muted-foreground">
-                  No templates found. Create your first template to get started.
+                  No categories found. Create your first category to get started.
                 </div>
-                <Link href={route('admin.templates.create')} className="mt-4 inline-block">
-                  <Button>Create Template</Button>
+                <Link href={route('admin.categories.create')} className="mt-4 inline-block">
+                  <Button>Create Category</Button>
                 </Link>
               </div>
             )}
@@ -403,17 +377,26 @@ export default function AdminTemplatesIndex({
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteTemplate} onOpenChange={() => setDeleteTemplate(null)}>
+      <AlertDialog open={!!deleteCategory} onOpenChange={() => setDeleteCategory(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Template</AlertDialogTitle>
+            <AlertDialogTitle>Delete Category</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{deleteTemplate?.name}"? This action cannot be undone.
+              Are you sure you want to delete "{deleteCategory?.name}"? This action cannot be undone.
+              {deleteCategory?.templates_count > 0 && (
+                <span className="block mt-2 text-destructive">
+                  This category has {deleteCategory.templates_count} templates. You cannot delete it.
+                </span>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground">
+            <AlertDialogAction 
+              onClick={confirmDelete} 
+              className="bg-destructive text-destructive-foreground"
+              disabled={deleteCategory?.templates_count > 0}
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

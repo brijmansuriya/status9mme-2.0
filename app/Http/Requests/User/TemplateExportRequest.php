@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\User;
 
-use App\Http\Requests\FormRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
 class TemplateExportRequest extends FormRequest
 {

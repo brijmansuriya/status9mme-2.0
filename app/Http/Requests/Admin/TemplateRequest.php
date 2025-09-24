@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Http\Requests\FormRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
 class TemplateRequest extends FormRequest
 {
