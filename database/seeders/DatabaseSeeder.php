@@ -24,12 +24,5 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-
-        // Seed categories, templates, and admins
-        $this->call([
-            CategorySeeder::class,
-            TemplateSeeder::class,
-            AdminSeeder::class,
-        ]);
     }
 }
