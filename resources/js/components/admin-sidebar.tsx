@@ -47,6 +47,11 @@ const adminNavItems: NavItem[] = [
         icon: Folder,
     },
     {
+        title: 'Templates',
+        href: '/admin/templates',
+        icon: FileText,
+    },
+    {
         title: 'Analytics',
         href: '/admin/analytics',
         icon: BarChart3,

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DatabaseController;
 use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Admin\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Category management routes
         Route::resource('categories', CategoryController::class);
         Route::patch('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
+
+        // Template management routes
+        Route::resource('templates', TemplateController::class);
+        Route::patch('templates/{template}/toggle-status', [TemplateController::class, 'toggleStatus'])->name('templates.toggle-status');
+        Route::post('templates/{template}/duplicate', [TemplateController::class, 'duplicate'])->name('templates.duplicate');
 
         // Test route for debugging
         Route::get('test-categories', function () {
