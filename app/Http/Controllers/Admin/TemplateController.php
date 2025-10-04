@@ -81,16 +81,16 @@ class TemplateController extends Controller
         $admin = auth()->guard('admin')->user();
 
         $categories = [
-            'birthday'    => 'Birthday',
-            'wedding'     => 'Wedding',
-            'festival'    => 'Festival',
-            'quotes'      => 'Quotes',
-            'anniversary' => 'Anniversary',
-            'graduation'  => 'Graduation',
-            'holiday'     => 'Holiday',
-            'business'    => 'Business',
-            'social'      => 'Social',
-            'general'     => 'General',
+            ['id' => 1, 'name' => 'Birthday', 'slug' => 'birthday'],
+            ['id' => 2, 'name' => 'Wedding', 'slug' => 'wedding'],
+            ['id' => 3, 'name' => 'Festival', 'slug' => 'festival'],
+            ['id' => 4, 'name' => 'Quotes', 'slug' => 'quotes'],
+            ['id' => 5, 'name' => 'Anniversary', 'slug' => 'anniversary'],
+            ['id' => 6, 'name' => 'Graduation', 'slug' => 'graduation'],
+            ['id' => 7, 'name' => 'Holiday', 'slug' => 'holiday'],
+            ['id' => 8, 'name' => 'Business', 'slug' => 'business'],
+            ['id' => 9, 'name' => 'Social', 'slug' => 'social'],
+            ['id' => 10, 'name' => 'General', 'slug' => 'general'],
         ];
 
         return Inertia::render('admin/templates/create', [
