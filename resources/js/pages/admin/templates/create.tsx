@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import { AdminSidebarLayout } from '@/layouts/admin/admin-sidebar-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -266,13 +266,22 @@ export default function AdminCreateTemplate({ auth, categories }: AdminCreateTem
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="text-center py-6">
+                                        <div className="text-center py-6 space-y-3">
                                             <Button
                                                 onClick={() => setShowEditor(true)}
                                                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3"
                                             >
                                                 <Sparkles className="h-5 w-5 mr-2" />
-                                                Open Canva Editor
+                                                Open Canva Editor (Embedded)
+                                            </Button>
+                                            <div className="text-sm text-slate-500 dark:text-slate-400">or</div>
+                                            <Button
+                                                onClick={() => router.visit('/admin/templates/canva-editor')}
+                                                variant="outline"
+                                                className="border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/10 px-8 py-3"
+                                            >
+                                                <Sparkles className="h-5 w-5 mr-2" />
+                                                Open Fullscreen Canva Editor
                                             </Button>
                                         </div>
                                     </CardContent>

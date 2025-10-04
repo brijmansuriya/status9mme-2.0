@@ -32,6 +32,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
 
         // Template management routes
+        Route::get('templates/canva-editor', [TemplateController::class, 'canvaEditor'])->name('templates.canva-editor');
         Route::resource('templates', TemplateController::class);
         Route::patch('templates/{template}/toggle-status', [TemplateController::class, 'toggleStatus'])->name('templates.toggle-status');
         Route::post('templates/{template}/duplicate', [TemplateController::class, 'duplicate'])->name('templates.duplicate');
