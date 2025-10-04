@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import PolotnoEditor from '@/components/polotno-editor';
+import CanvaEditor from '@/components/canva-editor';
 
 interface Category {
     id: number;
@@ -39,10 +40,10 @@ interface AdminCreateTemplateProps {
     categories: Category[] | Record<string, string>;
 }
 
-type CreationMode = 'drag-drop' | 'json-upload' | 'default-templates';
+type CreationMode = 'canva-editor' | 'drag-drop' | 'json-upload' | 'default-templates';
 
 export default function AdminCreateTemplate({ auth, categories }: AdminCreateTemplateProps) {
-    const [creationMode, setCreationMode] = useState<CreationMode>('drag-drop');
+    const [creationMode, setCreationMode] = useState<CreationMode>('canva-editor');
     const [showEditor, setShowEditor] = useState(false);
     const [editorData, setEditorData] = useState<object | null>(null);
 
@@ -113,12 +114,21 @@ export default function AdminCreateTemplate({ auth, categories }: AdminCreateTem
             <AdminSidebarLayout>
                 <Head title="Create Template - Editor" />
                 <div className="h-screen">
-                    <PolotnoEditor
-                        initialData={editorData}
-                        onSave={handleEditorSave}
-                        onCancel={handleEditorCancel}
-                        mode="create"
-                    />
+                    {creationMode === 'canva-editor' ? (
+                        <CanvaEditor
+                            initialData={editorData}
+                            onSave={handleEditorSave}
+                            onCancel={handleEditorCancel}
+                            mode="create"
+                        />
+                    ) : (
+                        <PolotnoEditor
+                            initialData={editorData}
+                            onSave={handleEditorSave}
+                            onCancel={handleEditorCancel}
+                            mode="create"
+                        />
+                    )}
                 </div>
             </AdminSidebarLayout>
         );
@@ -169,12 +179,20 @@ export default function AdminCreateTemplate({ auth, categories }: AdminCreateTem
                                 </CardHeader>
                                 <CardContent className="space-y-3">
                                     <Button
+                                        variant={creationMode === 'canva-editor' ? 'default' : 'outline'}
+                                        className="w-full justify-start"
+                                        onClick={() => setCreationMode('canva-editor')}
+                                    >
+                                        <Sparkles className="h-4 w-4 mr-2" />
+                                        Canva Editor (Professional)
+                                    </Button>
+                                    <Button
                                         variant={creationMode === 'drag-drop' ? 'default' : 'outline'}
                                         className="w-full justify-start"
                                         onClick={() => setCreationMode('drag-drop')}
                                     >
                                         <Palette className="h-4 w-4 mr-2" />
-                                        Drag & Drop Editor
+                                        Simple Editor
                                     </Button>
                                     <Button
                                         variant={creationMode === 'json-upload' ? 'default' : 'outline'}
@@ -198,6 +216,69 @@ export default function AdminCreateTemplate({ auth, categories }: AdminCreateTem
 
                         {/* Main Content */}
                         <div className="lg:col-span-2">
+                            {creationMode === 'canva-editor' && (
+                                <Card className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-700">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                                            <Sparkles className="h-5 w-5" />
+                                            Canva Editor - Professional Template Creator
+                                        </CardTitle>
+                                        <CardDescription className="text-blue-600 dark:text-blue-400">
+                                            Professional-grade template editor with scene management, advanced tools, and export capabilities
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div className="space-y-3">
+                                                <h4 className="font-semibold text-slate-900 dark:text-slate-100">Features:</h4>
+                                                <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                                                    <li className="flex items-center gap-2">
+                                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                        Multiple scenes with timeline
+                                                    </li>
+                                                    <li className="flex items-center gap-2">
+                                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                        Canvas presets (1080×1920, 1080×1080)
+                                                    </li>
+                                                    <li className="flex items-center gap-2">
+                                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                        Advanced drag & drop tools
+                                                    </li>
+                                                    <li className="flex items-center gap-2">
+                                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                        Property panels for fine-tuning
+                                                    </li>
+                                                    <li className="flex items-center gap-2">
+                                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                        Export to JSON and video
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <h4 className="font-semibold text-slate-900 dark:text-slate-100">Tools Available:</h4>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {['Text', 'Images', 'Shapes', 'Audio', 'Video', 'Stickers', 'Backgrounds', 'Effects'].map((tool) => (
+                                                        <div key={tool} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                                                            <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
+                                                            {tool}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="text-center py-6">
+                                            <Button
+                                                onClick={() => setShowEditor(true)}
+                                                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3"
+                                            >
+                                                <Sparkles className="h-5 w-5 mr-2" />
+                                                Open Canva Editor
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
+
                             {creationMode === 'drag-drop' && (
                                 <Card>
                                     <CardHeader>
@@ -421,6 +502,7 @@ export default function AdminCreateTemplate({ auth, categories }: AdminCreateTem
                         </CardContent>
                     </Card>
                 </div>
+            </div>
         </AdminSidebarLayout>
     );
 }
