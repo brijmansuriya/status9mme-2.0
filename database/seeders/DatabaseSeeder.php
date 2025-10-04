@@ -24,5 +24,10 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+        // Admin Seeder
+        $this->call([
+            AdminSeeder::class,
+        ]);
     }
 }

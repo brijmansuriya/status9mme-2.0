@@ -1,78 +1,95 @@
-import { UserSidebarLayout } from '@/layouts/user/user-sidebar-layout';
+import { AdminSidebarLayout } from '@/layouts/admin/admin-sidebar-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, BarChart3, FileText, HelpCircle, TrendingUp } from 'lucide-react';
+import {
+    Users,
+    UserCog,
+    BarChart3,
+    FileText,
+    Settings,
+    Shield,
+    TrendingUp
+} from 'lucide-react';
 import { Head } from '@inertiajs/react';
 
-export default function Dashboard() {
+interface AdminDashboardProps {
+    admin: {
+        id: number;
+        name: string;
+        email: string;
+        role: string;
+    };
+}
+
+export default function AdminDashboard({ admin }: AdminDashboardProps) {
     const quickStats = [
         {
-            title: 'Data Views',
+            title: 'Total Users',
             value: '1,234',
             change: '+12%',
-            icon: Eye,
+            icon: Users,
             color: 'text-primary',
         },
         {
-            title: 'Reports Downloaded',
-            value: '89',
-            change: '+23%',
-            icon: FileText,
+            title: 'Active Admins',
+            value: '5',
+            change: '+2',
+            icon: UserCog,
             color: 'text-chart-2',
         },
         {
-            title: 'Analytics Views',
-            value: '456',
-            change: '+8%',
-            icon: BarChart3,
+            title: 'Reports Generated',
+            value: '89',
+            change: '+23%',
+            icon: FileText,
             color: 'text-chart-3',
         },
     ];
 
     const quickActions = [
         {
-            title: 'View Data',
-            description: 'Browse and search through system data',
-            href: '/user/data',
-            icon: Eye,
+            title: 'Manage Users',
+            description: 'View and manage user accounts',
+            href: '/admin/users',
+            icon: Users,
         },
         {
-            title: 'View Reports',
-            description: 'Access and download available reports',
-            href: '/user/reports',
-            icon: FileText,
-        },
-        {
-            title: 'Analytics',
-            description: 'View charts and performance metrics',
-            href: '/user/analytics',
+            title: 'View Analytics',
+            description: 'Check system analytics and metrics',
+            href: '/admin/analytics',
             icon: BarChart3,
         },
         {
-            title: 'Get Help',
-            description: 'Find answers and contact support',
-            href: '/user/help',
-            icon: HelpCircle,
+            title: 'Generate Reports',
+            description: 'Create and download reports',
+            href: '/admin/reports',
+            icon: FileText,
+        },
+        {
+            title: 'Admin Settings',
+            description: 'Configure admin panel settings',
+            href: '/admin/settings',
+            icon: Settings,
         },
     ];
 
     return (
-        <UserSidebarLayout>
-            <Head title="User Dashboard" />
+        <AdminSidebarLayout>
+            <Head title="Admin Dashboard" />
             <div className="space-y-6 p-4">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">User Dashboard</h1>
+                        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
                         <p className="text-muted-foreground">
-                            Welcome to your user portal. Access data, reports, and analytics.
+                            Welcome back, {admin.name}! Manage your system from here.
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
                         <Badge variant="outline" className="flex items-center gap-1">
-                            <Eye className="h-3 w-3" />
-                            Read Only Access
+                            <Shield className="h-3 w-3" />
+                            Admin Access
                         </Badge>
                     </div>
                 </div>
@@ -132,16 +149,16 @@ export default function Dashboard() {
                         <div className="flex items-start gap-3">
                             <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
                             <div>
-                                <h3 className="font-semibold text-primary">User Portal Access</h3>
+                                <h3 className="font-semibold text-primary">Admin Panel Access</h3>
                                 <p className="text-sm text-muted-foreground mt-1">
-                                    You have read-only access to view data, reports, and analytics. 
-                                    For administrative functions or data modifications, please contact an administrator.
+                                    You have full administrative access to manage users, view analytics, generate reports, and configure system settings.
+                                    For administrative functions or data modifications, use the quick actions above.
                                 </p>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
             </div>
-        </UserSidebarLayout>
+        </AdminSidebarLayout>
     );
 }

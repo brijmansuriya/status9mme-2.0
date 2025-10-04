@@ -4,19 +4,29 @@ import { Form, Head } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 
 import InputError from '@/components/input-error';
+import SuccessMessage from '@/components/success-message';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
 
-export default function Register() {
+interface RegisterProps {
+    success?: string;
+}
+
+export default function Register({ success }: RegisterProps) {
     return (
         <AuthLayout
             title="Create an account"
             description="Enter your details below to create your account"
         >
             <Head title="Register" />
+
+            {success && (
+                <SuccessMessage message={success} className="mb-4" />
+            )}
             <Form
                 {...RegisteredUserController.store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}
@@ -90,10 +100,30 @@ export default function Register() {
                                 />
                             </div>
 
+                            <div className="flex items-center space-x-3">
+                                <Checkbox
+                                    id="terms"
+                                    name="terms"
+                                    required
+                                    tabIndex={5}
+                                />
+                                <Label htmlFor="terms" className="text-sm">
+                                    I agree to the{' '}
+                                    <TextLink href="#" className="underline">
+                                        Terms of Service
+                                    </TextLink>{' '}
+                                    and{' '}
+                                    <TextLink href="#" className="underline">
+                                        Privacy Policy
+                                    </TextLink>
+                                </Label>
+                            </div>
+                            <InputError message={errors.terms} />
+
                             <Button
                                 type="submit"
                                 className="mt-2 w-full"
-                                tabIndex={5}
+                                tabIndex={6}
                                 data-test="register-user-button"
                             >
                                 {processing && (

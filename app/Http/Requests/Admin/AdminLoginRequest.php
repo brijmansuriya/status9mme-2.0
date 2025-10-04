@@ -1,14 +1,11 @@
 <?php
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Admin;
 
-use App\Models\User;
-use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
-class LoginRequest extends FormRequest
+class AdminLoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -36,7 +33,7 @@ class LoginRequest extends FormRequest
             'password' => [
                 'required',
                 'string',
-                'min:1', // Minimum length check
+                'min:1',
             ],
             'remember' => ['boolean'],
         ];
@@ -77,28 +74,13 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Validate the request's credentials and return the user without logging them in.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Prepare the data for validation.
      */
-    public function validateCredentials(): User
+    protected function prepareForValidation(): void
     {
-        $this->ensureIsNotRateLimited();
-
-        /** @var User|null $user */
-        $user = Auth::getProvider()->retrieveByCredentials($this->only('email', 'password'));
-
-        if (! $user || ! Auth::getProvider()->validateCredentials($user, $this->only('password'))) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
-        }
-
-        RateLimiter::clear($this->throttleKey());
-
-        return $user;
+        $this->merge([
+            'email' => strtolower($this->email),
+        ]);
     }
 
     /**
@@ -111,8 +93,6 @@ class LoginRequest extends FormRequest
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
-
-        event(new Lockout($this));
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
@@ -131,18 +111,8 @@ class LoginRequest extends FormRequest
     {
         return $this->string('email')
             ->lower()
-            ->append('|' . $this->ip())
+            ->append('|admin|' . $this->ip())
             ->transliterate()
             ->value();
-    }
-
-    /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'email' => strtolower($this->email),
-        ]);
     }
 }

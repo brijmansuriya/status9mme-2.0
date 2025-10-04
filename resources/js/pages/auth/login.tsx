@@ -1,5 +1,6 @@
 import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
 import InputError from '@/components/input-error';
+import SuccessMessage from '@/components/success-message';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -13,10 +14,11 @@ import { LoaderCircle } from 'lucide-react';
 
 interface LoginProps {
     status?: string;
+    success?: string;
     canResetPassword: boolean;
 }
 
-export default function Login({ status, canResetPassword }: LoginProps) {
+export default function Login({ status, success, canResetPassword }: LoginProps) {
     return (
         <AuthLayout
             title="Log in to your account"
@@ -104,6 +106,10 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     </>
                 )}
             </Form>
+
+            {success && (
+                <SuccessMessage message={success} className="mb-4" />
+            )}
 
             {status && (
                 <div className="mb-4 text-center text-sm font-medium text-green-600">

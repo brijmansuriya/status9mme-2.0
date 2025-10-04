@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -21,7 +20,8 @@ class AuthenticatedSessionController extends Controller
     {
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
-            'status' => $request->session()->get('status'),
+            'status'           => $request->session()->get('status'),
+            'success'          => $request->session()->get('success'),
         ]);
     }
 
@@ -34,7 +34,7 @@ class AuthenticatedSessionController extends Controller
 
         if (Features::enabled(Features::twoFactorAuthentication()) && $user->hasEnabledTwoFactorAuthentication()) {
             $request->session()->put([
-                'login.id' => $user->getKey(),
+                'login.id'       => $user->getKey(),
                 'login.remember' => $request->boolean('remember'),
             ]);
 
@@ -45,7 +45,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('dashboard', absolute: false))
+            ->with('success', 'Welcome back! You have been logged in successfully.');
     }
 
     /**
@@ -58,6 +59,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/')
+            ->with('success', 'You have been logged out successfully.');
     }
 }

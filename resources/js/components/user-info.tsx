@@ -6,10 +6,19 @@ export function UserInfo({
     user,
     showEmail = false,
 }: {
-    user: User;
+    user: User | null;
     showEmail?: boolean;
 }) {
     const getInitials = useInitials();
+
+    if (!user) {
+        return (
+            <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                <div className="text-sm text-gray-500">Not authenticated</div>
+            </div>
+        );
+    }
 
     return (
         <>
